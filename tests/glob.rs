@@ -1,5 +1,3 @@
-extern crate glob;
-
 use serde::{Deserialize, Serialize};
 
 use glob::*;

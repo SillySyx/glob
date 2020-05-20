@@ -1,6 +1,6 @@
-pub mod glob;
-pub mod read;
-pub mod write;
+mod glob;
+mod read;
+mod write;
 
 pub use {
     crate::glob::Glob,
