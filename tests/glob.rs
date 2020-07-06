@@ -9,7 +9,7 @@ struct TestStruct {
 
 #[test]
 fn should_be_possible_to_read_from_blob_as_bytes() -> Result<(), Box<dyn std::error::Error>> {
-    let glob = Glob::new("tests/bytes_data");
+    let glob = Glob::new("/home/admin/p/password-manager/glob/tests/bytes_data");
     let data = glob.read("resource/name")?;
 
     let expected_data = vec![1,2,3];
@@ -21,7 +21,7 @@ fn should_be_possible_to_read_from_blob_as_bytes() -> Result<(), Box<dyn std::er
 
 #[test]
 fn should_be_possible_to_read_from_blob_as_struct() -> Result<(), Box<dyn std::error::Error>> {
-    let glob = Glob::new("tests/struct_data");
+    let glob = Glob::new("/home/admin/p/password-manager/glob/tests/struct_data");
     let data: TestStruct = glob.read_as("resource/name")?;
 
     let expected_struct = TestStruct {
@@ -35,9 +35,9 @@ fn should_be_possible_to_read_from_blob_as_struct() -> Result<(), Box<dyn std::e
 
 #[test]
 fn should_be_possible_to_write_bytes_to_blob() -> Result<(), Box<dyn std::error::Error>> {
-    remove_file("tests/bytes_data");
+    remove_file("/home/admin/p/password-manager/glob/tests/bytes_data");
 
-    let glob = Glob::new("tests/bytes_data");
+    let glob = Glob::new("/home/admin/p/password-manager/glob/tests/bytes_data");
     let data = vec![1,2,3];
 
     glob.write("resource/name", data)?;
@@ -47,9 +47,9 @@ fn should_be_possible_to_write_bytes_to_blob() -> Result<(), Box<dyn std::error:
 
 #[test]
 fn should_be_possible_to_write_struct_to_blob() -> Result<(), Box<dyn std::error::Error>> {
-    remove_file("tests/struct_data");
+    remove_file("/home/admin/p/password-manager/glob/tests/struct_data");
 
-    let glob = Glob::new("tests/struct_data");
+    let glob = Glob::new("/home/admin/p/password-manager/glob/tests/struct_data");
     let data = TestStruct {
         value: String::from("test"),
     };

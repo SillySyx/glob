@@ -1,4 +1,5 @@
-use crate::glob::Glob;
+use crate::{Glob, FindGlobEntry, RemoveGlob};
+use crate::convert::{to_u32_array, to_u64_array};
 
 use std::{
     io::{Write, Seek, SeekFrom},
@@ -15,23 +16,25 @@ pub trait WriteGlob {
 
 impl WriteGlob for Glob {
     fn write(&self, name: &str, data: Vec<u8>) -> Result<(), Box<dyn Error>> {
+        if let Ok(_entry) = self.find(|entry_name| entry_name == name) {
+            self.remove(name)?;
+        }
+
         let mut file = OpenOptions::new()
             .create(true)
             .append(true)
             .open(&self.file_path)?;
 
-        // try to find name 
-
         file.seek(SeekFrom::End(0))?;
 
         let name_length = name.len() as u32;
-        file.write(&transform_u32_to_array_of_u8(name_length))?;
+        file.write(&to_u32_array(name_length))?;
 
         let name_bytes = name.as_bytes();
         file.write(name_bytes)?;
 
         let data_length = data.len() as u64;
-        file.write(&transform_u64_to_array_of_u8(data_length))?;
+        file.write(&to_u64_array(data_length))?;
 
         file.write(&data)?;
     
@@ -43,26 +46,4 @@ impl WriteGlob for Glob {
         
         Self::write(self, name, bytes)
     }
-}
-
-fn transform_u32_to_array_of_u8(x: u32) -> [u8; 4] {
-    [
-        ((x >> 24) & 0xff) as u8,
-        ((x >> 16) & 0xff) as u8,
-        ((x >> 8)  & 0xff) as u8,
-        ((x >> 0)  & 0xff) as u8,
-    ]
-}
-
-fn transform_u64_to_array_of_u8(x: u64) -> [u8; 8] {
-    [
-        ((x >> 56) & 0xff) as u8,
-        ((x >> 48) & 0xff) as u8,
-        ((x >> 40) & 0xff) as u8,
-        ((x >> 32) & 0xff) as u8,
-        ((x >> 24) & 0xff) as u8,
-        ((x >> 16) & 0xff) as u8,
-        ((x >> 8)  & 0xff) as u8,
-        ((x >> 0)  & 0xff) as u8,
-    ]
 }
