@@ -6,7 +6,7 @@ use super::GlobEntry;
 use super::convert::{to_u32, to_u64, to_u32_array, to_u64_array};
 
 pub struct Glob {
-    entries: Vec<GlobEntry>,
+    pub entries: Vec<GlobEntry>,
 }
 
 impl Glob {
