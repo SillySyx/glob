@@ -1,67 +1,37 @@
-use serde::{Deserialize, Serialize};
-
-use glob::*;
-
-#[derive(Deserialize, Serialize)]
-struct TestStruct {
-    value: String,
-}
+use glob::{Glob, GlobEntry};
+use std::error::Error;
 
 #[test]
-fn should_be_possible_to_read_from_blob_as_bytes() -> Result<(), Box<dyn std::error::Error>> {
-    let glob = Glob::new("./tests/bytes_data");
-    let data = glob.read("resource/name")?;
+fn should_be_possible_to_find_entry_from_glob() -> Result<(), Box<dyn Error>> {
+    let glob = Glob::from(&[0, 0, 0, 9, 116, 101, 115, 116, 45, 110, 97, 109, 101, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 2])?;
 
-    let expected_data = vec![1,2,3];
+    let entry = glob.find(|e| e.name == "test-name")?;
 
-    assert!(data == expected_data);
+    assert_eq!("test-name", entry.name);
 
     Ok(())
 }
 
 #[test]
-fn should_be_possible_to_read_from_blob_as_struct() -> Result<(), Box<dyn std::error::Error>> {
-    let glob = Glob::new("./tests/struct_data");
-    let data: TestStruct = glob.read_as("resource/name")?;
+fn should_replace_entry_when_adding_with_same_name() -> Result<(), Box<dyn Error>> {
+    let mut glob = Glob::new();
 
-    let expected_struct = TestStruct {
-        value: String::from("test"),
-    };
+    glob.add(GlobEntry::new("test-name", None));
+    glob.add(GlobEntry::new("test-name", Some(vec![0,1,2])));
 
-    assert!(data.value == expected_struct.value);
+    let entry = glob.find(|e| e.name == "test-name")?;
 
-    Ok(())
-}
-
-#[test]
-fn should_be_possible_to_write_bytes_to_blob() -> Result<(), Box<dyn std::error::Error>> {
-    remove_file("./tests/bytes_data");
-
-    let glob = Glob::new("./tests/bytes_data");
-    let data = vec![1,2,3];
-
-    glob.write("resource/name", data)?;
+    assert_eq!(Some(vec![0,1,2]), entry.data);
 
     Ok(())
 }
 
 #[test]
-fn should_be_possible_to_write_struct_to_blob() -> Result<(), Box<dyn std::error::Error>> {
-    remove_file("./tests/struct_data");
+#[should_panic]
+fn should_be_possible_to_remove_entry_from_glob() {
+    let mut glob = Glob::from(&[0, 0, 0, 9, 116, 101, 115, 116, 45, 110, 97, 109, 101, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 2]).unwrap();
 
-    let glob = Glob::new("./tests/struct_data");
-    let data = TestStruct {
-        value: String::from("test"),
-    };
+    glob.remove(|entry| entry.name == "test-name");
 
-    glob.write_as("resource/name", data)?;
-
-    Ok(())
-}
-
-fn remove_file(path: &'static str) {
-    match std::fs::remove_file(path) {
-        Ok(_) => {},
-        Err(_) => {},
-    };
+    glob.find(|e| e.name == "test-name").expect("should fail");
 }
