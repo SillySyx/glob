@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct GlobEntry {
     pub name: String,
     pub data: Option<Vec<u8>>,

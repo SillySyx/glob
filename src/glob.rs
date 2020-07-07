@@ -5,6 +5,7 @@ use std::fs::OpenOptions;
 use super::GlobEntry;
 use super::convert::{to_u32, to_u64, to_u32_array, to_u64_array};
 
+#[derive(Debug)]
 pub struct Glob {
     pub entries: Vec<GlobEntry>,
 }
