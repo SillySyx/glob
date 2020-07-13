@@ -1,8 +1,20 @@
-mod convert;
-mod glob;
-mod globentry;
+mod entry;
+mod archive;
+mod filearchive;
+mod memoryarchive;
 
 pub use {
-    crate::glob::Glob,
-    globentry::GlobEntry,
+    entry::Entry,
+    archive::Archive,
+    filearchive::FileArchive,
+    memoryarchive::MemoryArchive,
 };
+
+// mod convert;
+// mod glob;
+// mod globentry;
+
+// pub use {
+//     crate::glob::Glob,
+//     globentry::GlobEntry,
+// };
