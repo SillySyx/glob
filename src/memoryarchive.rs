@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::io::Cursor;
+use std::io::{Cursor, Read, Seek, SeekFrom};
 
 use crate::entry::Entry;
 use crate::archive::{Archive, find_entry_in_archive, read_entries_from_archive, read_entry_data, remove_entry_from_archive, write_entry_to_archive};
@@ -14,6 +14,10 @@ impl MemoryArchive {
         Self {
             memory: Cursor::new(memory),
         }
+    }
+
+    pub fn as_bytes(&mut self) -> Result<Vec<u8>, Box<dyn Error>> {
+        read_all_bytes(&mut self.memory)
     }
 }
 
@@ -37,6 +41,13 @@ impl Archive for MemoryArchive {
     fn remove_entry(&mut self, entry: &Entry) -> Result<(), Box<dyn Error>> {
         remove_entry_from_archive(&mut self.memory, entry)
     }
+}
+
+fn read_all_bytes<Archive: Read + Seek>(archive: &mut Archive) -> Result<Vec<u8>, Box<dyn Error>> {
+    let mut buffer = vec![];
+    archive.seek(SeekFrom::Start(0))?;
+    archive.read_to_end(&mut buffer)?;
+    Ok(buffer)
 }
 
 #[cfg(test)]
