@@ -91,8 +91,42 @@ pub fn find_entry_in_archive<Archive: Read + Seek>(archive: &mut Archive, name: 
     Err(Box::from("failed to find entry in archive"))
 }
 
-pub fn remove_entry_from_archive<Archive: Read + Write + Seek>(_archive: &mut Archive, _entry: &Entry) -> Result<(), Box<dyn Error>> {
-    // .... 
+pub fn remove_entry_from_archive<Archive: Read + Write + Seek>(archive: &mut Archive, entry: &Entry) -> Result<u64, Box<dyn Error>> {
+    let end_position = archive.seek(SeekFrom::End(0))?;
+    
+    let mut write_position = archive.seek(SeekFrom::Start(entry.position))?;
 
-    Ok(())
+    let position_offset = entry.name.len() 
+        + entry.data_length 
+        + std::mem::size_of::<usize>() 
+        + std::mem::size_of::<usize>();
+
+    let mut read_position = archive.seek(SeekFrom::Current(position_offset as i64))?;
+    
+    let end_position = end_position - position_offset as u64;
+
+    loop {
+        if write_position == end_position {
+            break;
+        }
+
+        archive.seek(SeekFrom::Start(read_position))?;
+
+        let mut buffer = [0u8; 1024];
+
+        let bytes_read = archive.read(&mut buffer)?;
+        if bytes_read == 0 {
+            return Err(Box::from("failed to read any more bytes!"));
+        }
+
+        read_position += bytes_read as u64;
+
+        archive.seek(SeekFrom::Start(write_position))?;
+
+        let bytes_written = archive.write(&buffer[..bytes_read])?;
+
+        write_position += bytes_written as u64;
+    }
+
+    Ok(end_position)
 }

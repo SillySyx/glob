@@ -18,6 +18,10 @@ impl FileArchive {
 
 impl Archive for FileArchive {
     fn add_entry(&mut self, name: &str, data: &[u8]) -> Result<Entry, Box<dyn Error>> {
+        if let Ok(entry) = self.find_entry(name) {
+            self.remove_entry(&entry)?;
+        }
+        
         write_entry_to_archive(&mut self.file, name, data)
     }
 
@@ -34,6 +38,8 @@ impl Archive for FileArchive {
     }
 
     fn remove_entry(&mut self, entry: &Entry) -> Result<(), Box<dyn Error>> {
-        remove_entry_from_archive(&mut self.file, entry)
+        let new_file_size = remove_entry_from_archive(&mut self.file, entry)?;
+        self.file.set_len(new_file_size)?;
+        Ok(())
     }
 }
