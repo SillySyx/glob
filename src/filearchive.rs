@@ -18,11 +18,16 @@ impl FileArchive {
 
 impl Archive for FileArchive {
     fn add_entry(&mut self, name: &str, data: &[u8]) -> Result<Entry, Box<dyn Error>> {
-        if let Ok(entry) = self.find_entry(name) {
-            self.remove_entry(&entry)?;
+        if let Ok(_) = self.find_entry(name) {
+            return Err(Box::from("entry already exists"));
         }
         
         write_entry_to_archive(&mut self.file, name, data)
+    }
+
+    fn replace_entry(&mut self, entry: &Entry, name: &str, data: &[u8]) -> Result<Entry, Box<dyn Error>> {
+        self.remove_entry(&entry)?;
+        self.add_entry(name, data)
     }
 
     fn read_entries(&mut self) -> Result<Vec<Entry>, Box<dyn Error>> {

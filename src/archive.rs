@@ -5,6 +5,7 @@ use crate::entry::Entry;
 
 pub trait Archive {
     fn add_entry(&mut self, name: &str, data: &[u8]) -> Result<Entry, Box<dyn Error>>;
+    fn replace_entry(&mut self, entry: &Entry, name: &str, data: &[u8]) -> Result<Entry, Box<dyn Error>>;
     
     fn find_entry(&mut self, name: &str) -> Result<Entry, Box<dyn Error>>;
 
